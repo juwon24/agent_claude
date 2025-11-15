@@ -1,0 +1,12 @@
+# SimPEG and related packages for gravity simulation
+simpeg>=0.21.0
+discretize>=0.10.0
+choclo>=0.1.0
+
+# Scientific computing
+numpy>=1.20.0
+scipy>=1.7.0
+matplotlib>=3.5.0
+
+# Numba for performance (required by choclo)
+numba>=0.55.0
