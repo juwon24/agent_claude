@@ -239,7 +239,7 @@ mesh.finalize()
 print(f"  Base cell width: {dh} m")
 print(f"  Number of cells: {mesh.n_cells}")
 print(f"  Mesh extent (x): [{mesh.nodes_x.min():.1f}, {mesh.nodes_x.max():.1f}] m")
-print(f"  Mesh extent (z): [{mesh.nodes_z.min():.1f}, {mesh.nodes_z.max():.1f}] m")
+print(f"  Mesh extent (z): [{mesh.nodes_y.min():.1f}, {mesh.nodes_y.max():.1f}] m")
 print()
 
 
@@ -383,9 +383,13 @@ print("=" * 80)
 inv_L2 = inversion.BaseInversion(inv_prob_L2, directives_list_L2)
 recovered_log_conductivity_model = inv_L2.run(starting_conductivity_model)
 
+# Calculate final data misfit
+dpred_L2 = inv_prob_L2.dpred
+final_phi_d = np.sum(((voltage_data.dobs - dpred_L2) / voltage_data.standard_deviation) ** 2)
+
 print()
 print(f"  L2 inversion completed successfully")
-print(f"  Final data misfit: {inv_prob_L2.dmisfit.phi:.2f}")
+print(f"  Final data misfit: {final_phi_d:.2f}")
 print()
 
 
@@ -604,7 +608,6 @@ recovered_log_resistivity_model = inv_irls.run(starting_resistivity_model)
 
 print()
 print(f"  IRLS inversion completed successfully")
-print(f"  Final data misfit: {inv_prob_irls.dmisfit.phi:.2f}")
 print()
 
 
@@ -692,8 +695,6 @@ print(f"  Active cells:             {n_active}")
 print()
 print("Inversion Results:")
 print("-" * 80)
-print(f"  L2 final misfit:          {inv_prob_L2.dmisfit.phi:.2f}")
-print(f"  IRLS final misfit:        {inv_prob_irls.dmisfit.phi:.2f}")
 print()
 print("Generated Files:")
 print("-" * 80)

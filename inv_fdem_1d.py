@@ -339,7 +339,6 @@ recovered_model_L2 = inv_L2.run(starting_conductivity_model)
 
 print()
 print(f"  L2 inversion completed successfully")
-print(f"  Final data misfit: {inv_prob_L2.dmisfit.phi:.2f}")
 print()
 
 
@@ -406,7 +405,6 @@ recovered_model_irls = inv_irls.run(starting_conductivity_model)
 
 print()
 print(f"  IRLS inversion completed successfully")
-print(f"  Final data misfit: {inv_prob_irls.dmisfit.phi:.2f}")
 print()
 
 
@@ -499,7 +497,6 @@ recovered_model_parametric = inv_parametric.run(starting_parametric_model)
 
 print()
 print(f"  Parametric inversion completed successfully")
-print(f"  Final data misfit: {inv_prob_parametric.dmisfit.phi:.2f}")
 print()
 
 
@@ -614,9 +611,6 @@ print(f"  Number of layers:         {n_layers}")
 print()
 print("Inversion Results:")
 print("-" * 80)
-print(f"  L2 final misfit:          {inv_prob_L2.dmisfit.phi:.2f}")
-print(f"  IRLS final misfit:        {inv_prob_irls.dmisfit.phi:.2f}")
-print(f"  Parametric final misfit:  {inv_prob_parametric.dmisfit.phi:.2f}")
 print()
 print("Generated Files:")
 print("-" * 80)

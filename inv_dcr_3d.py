@@ -424,7 +424,6 @@ recovered_log_conductivity_model = inv_L2.run(starting_conductivity_model)
 
 print()
 print(f"  Inversion completed successfully")
-print(f"  Final data misfit: {inv_prob_L2.dmisfit.phi:.2f}")
 print()
 
 
@@ -571,7 +570,6 @@ print(f"  Survey lines:             {len(survey_2d_list)}")
 print()
 print("Inversion Results:")
 print("-" * 80)
-print(f"  Final data misfit:        {inv_prob_L2.dmisfit.phi:.2f}")
 print(f"  Target misfit:            {dc_data.nD}")
 print()
 print("Generated Files:")
