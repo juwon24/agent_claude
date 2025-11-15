@@ -29,6 +29,16 @@ env/
 *.png
 fwd_gravity_anomaly_3d_outputs/
 
+# Downloaded tutorial data files
+*.tar.gz
+*_files/
+gravity/
+*.obs
+*.xyz
+*.mod
+*.ubc
+*_output.log
+
 # IDE
 .vscode/
 .idea/
