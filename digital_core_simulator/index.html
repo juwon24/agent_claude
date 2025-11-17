@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>디지털 코어 시뮬레이터 - Digital Core Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 40px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #1e3c72;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .main-content {
+            display: grid;
+            gap: 20px;
+            grid-template-rows: auto auto;
+        }
+
+        .visualization-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .canvas-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            height: 500px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .charts-area {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            height: 400px;
+        }
+
+        h2 {
+            color: #1e3c72;
+            font-size: 20px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        h3 {
+            color: #2a5298;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #2a5298;
+        }
+
+        input[type="range"] {
+            padding: 0;
+            height: 6px;
+            background: #e0e0e0;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #2a5298;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #2a5298;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+        }
+
+        .value-display {
+            display: inline-block;
+            float: right;
+            color: #2a5298;
+            font-weight: bold;
+        }
+
+        .property-card {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #2a5298;
+        }
+
+        .property-name {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .property-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+
+        .property-unit {
+            font-size: 12px;
+            color: #888;
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            border-radius: 8px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .info-panel {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #2196f3;
+        }
+
+        .info-panel h4 {
+            color: #1565c0;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .info-panel p {
+            color: #555;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .sample-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .sample-item {
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 13px;
+        }
+
+        .sample-item:hover {
+            background: #e9ecef;
+        }
+
+        .sample-item.active {
+            background: #2a5298;
+            color: white;
+        }
+
+        .btn {
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            width: 100%;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #1e3c72;
+        }
+
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        @media (max-width: 1400px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .control-panel {
+                position: relative;
+                top: 0;
+            }
+
+            .visualization-area {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-area {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🪨 디지털 코어 시뮬레이터 (Digital Core Simulator)</h1>
+        <p class="subtitle">암석물성계측 실습 - 인터랙티브 3D 시각화 및 물성 분석 도구</p>
+    </div>
+
+    <div class="container">
+        <!-- 왼쪽 제어 패널 -->
+        <div class="control-panel">
+            <h2>제어 패널</h2>
+
+            <div class="control-group">
+                <label>암석 타입 선택</label>
+                <select id="rockTypeSelect">
+                    <option value="">-- 암석 타입 선택 --</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>샘플 선택</label>
+                <div class="sample-list" id="sampleList">
+                    <div class="loading">암석 타입을 먼저 선택하세요</div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>물성 조절</h3>
+
+                <label>
+                    공극률 (Porosity)
+                    <span class="value-display" id="porosityValue">15.0%</span>
+                </label>
+                <input type="range" id="porositySlider" min="0" max="35" step="0.1" value="15">
+
+                <label style="margin-top: 15px;">
+                    밀도 (Density)
+                    <span class="value-display" id="densityValue">2.50 g/cm³</span>
+                </label>
+                <input type="range" id="densitySlider" min="2.0" max="3.0" step="0.01" value="2.5">
+
+                <label style="margin-top: 15px;">
+                    P파 속도 (Vp)
+                    <span class="value-display" id="vpValue">4000 m/s</span>
+                </label>
+                <input type="range" id="vpSlider" min="2000" max="7000" step="10" value="4000">
+            </div>
+
+            <div class="control-group">
+                <h3>현재 물성값</h3>
+                <div id="propertiesDisplay">
+                    <div class="property-card">
+                        <div class="property-name">일축압축강도 (UCS)</div>
+                        <div class="property-value">
+                            <span id="ucsDisplay">--</span>
+                            <span class="property-unit">MPa</span>
+                        </div>
+                    </div>
+                    <div class="property-card">
+                        <div class="property-name">인장강도</div>
+                        <div class="property-value">
+                            <span id="tensileDisplay">--</span>
+                            <span class="property-unit">MPa</span>
+                        </div>
+                    </div>
+                    <div class="property-card">
+                        <div class="property-name">투수율 (Permeability)</div>
+                        <div class="property-value">
+                            <span id="permDisplay">--</span>
+                            <span class="property-unit">mD</span>
+                        </div>
+                    </div>
+                    <div class="property-card">
+                        <div class="property-name">영률 (Young's Modulus)</div>
+                        <div class="property-value">
+                            <span id="youngDisplay">--</span>
+                            <span class="property-unit">GPa</span>
+                        </div>
+                    </div>
+                    <div class="property-card">
+                        <div class="property-name">Vp/Vs 비</div>
+                        <div class="property-value">
+                            <span id="vpvsDisplay">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <h4>💡 사용 방법</h4>
+                <p>
+                    1. 암석 타입을 선택하세요<br>
+                    2. 샘플을 선택하거나 슬라이더로 물성을 조절하세요<br>
+                    3. 3D 모델과 차트에서 실시간 변화를 확인하세요<br>
+                    4. 마우스로 3D 모델을 회전/확대할 수 있습니다
+                </p>
+            </div>
+        </div>
+
+        <!-- 오른쪽 메인 컨텐츠 -->
+        <div class="main-content">
+            <!-- 3D 시각화 영역 -->
+            <div class="visualization-area">
+                <div class="canvas-container">
+                    <h2>3D 디지털 코어 모델</h2>
+                    <canvas id="renderCanvas"></canvas>
+                </div>
+
+                <div class="canvas-container">
+                    <h2>미세구조 단면</h2>
+                    <canvas id="microstructureCanvas"></canvas>
+                </div>
+            </div>
+
+            <!-- 차트 영역 -->
+            <div class="charts-area">
+                <div class="chart-container">
+                    <h2>응력-변형률 곡선</h2>
+                    <canvas id="stressStrainChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h2>공극률-투수율 관계</h2>
+                    <canvas id="porosityPermChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h2>탄성파속도-공극률 관계</h2>
+                    <canvas id="velocityPorosityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js for 3D visualization -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <!-- Chart.js for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+    <!-- Main application script -->
+    <script src="app.js"></script>
+</body>
+</html>
